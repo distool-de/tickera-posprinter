@@ -1,17 +1,23 @@
-﻿import requests, tempfile, os
+﻿# tc.py
+import requests
+import tempfile
+import os
 from src.printing import pdf_printer
 
-def fetch_ticket_data(url, order_id, order_key):
+def create_session():
+    session = requests.Session()
+    session.headers.update({
+        "User-Agent": "Mozilla/5.0"
+    })
+    return session
+
+def fetch_ticket_data(session, url, order_id, order_key):
     params = {
         "order_id": order_id,
         "order_key": order_key
     }
 
-    headers = {
-        "User-Agent": "Mozilla/5.0"
-    }
-
-    response = requests.get(url, params=params, headers=headers)
+    response = session.get(url, params=params)
 
     if response.status_code == 200:
         return response.json()
@@ -20,21 +26,16 @@ def fetch_ticket_data(url, order_id, order_key):
     else:
         return {"status": str(response.status_code), "message": "Request failed."}
 
-
-def print_ticket(url, ticket_id, order_key, hash, template_id, printer_name):
+def print_ticket(session, url, ticket_id, order_key, hash, template_id, printer_name):
     params = {
         "download_ticket": ticket_id,
         "order_key": order_key,
-        "nonce":hash,
-        "template_id":template_id
+        "nonce": hash,
+        "template_id": template_id
     }
 
-    headers = {
-        "User-Agent": "Mozilla/5.0"
-    }
-    response = requests.get(url, params=params, headers=headers)
+    response = session.get(url, params=params)
     if response.status_code == 200:
-    # Open a local file in binary write mode
         with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as fp:
             fp.write(response.content)
             pdf_printer(fp.name, printer_name)
@@ -43,4 +44,6 @@ def print_ticket(url, ticket_id, order_key, hash, template_id, printer_name):
             os.unlink(fp.name)
     else:
         print(f'Failed to download Ticket {ticket_id}')
+        
+
         
