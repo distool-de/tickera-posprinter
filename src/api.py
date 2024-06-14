@@ -1,8 +1,8 @@
-﻿# src/api.py
-import logging
+﻿import logging
 from woocommerce import API
+from src.logging_config import setup_logging
 
-logger = logging.getLogger(__name__)
+logger = setup_logging(__name__,logging.DEBUG)
 
 def get_new_orders(url, consumer_key, consumer_secret, after, order_state="completed", customer_id=None, known_orders=None):
     """
@@ -30,12 +30,12 @@ def get_new_orders(url, consumer_key, consumer_secret, after, order_state="compl
     )
 
     params = {"status": order_state, "after": after}
-    params = {"status": order_state}
+    # params = {"status": order_state}
     if customer_id is not None:
         params["customer"] = customer_id
 
     if known_orders is not None:
-        params["exclude"] = list(known_orders)
+        params["exclude"] = known_orders
 
     try:
         response = wcapi.get("orders", params=params)

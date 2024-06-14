@@ -1,8 +1,8 @@
-﻿# tc.py
-import requests
-import tempfile
-import os
+﻿import requests, tempfile, os, logging
 from src.printing import pdf_printer
+from src.logging_config import setup_logging
+
+logger = setup_logging(__name__,logging.DEBUG)
 
 def create_session():
     session = requests.Session()
@@ -38,12 +38,13 @@ def print_ticket(session, url, ticket_id, order_key, hash, template_id, printer_
     if response.status_code == 200:
         with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as fp:
             fp.write(response.content)
+            logger.info(f'Ticket {ticket_id} downloaded successfully to {fp.name}')
             pdf_printer(fp.name, printer_name)
-            print(f'Ticket {ticket_id} downloaded successfully to {fp.name}')
             fp.close()
             os.unlink(fp.name)
     else:
-        print(f'Failed to download Ticket {ticket_id}')
+        logger.error(f'Failed to download Ticket {ticket_id}')
+        print_ticket(session, url, ticket_id, order_key, hash, template_id, printer_name)
         
 
         
