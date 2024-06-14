@@ -20,5 +20,5 @@ venv*/
 .DS_Store
 .env
 
-#log/
-#log*/
+log/
+log*/
