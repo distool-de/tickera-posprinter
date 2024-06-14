@@ -16,3 +16,6 @@ venv*/
 # Compiled python modules
 *.pyc
 *.pyo
+
+.DS_Store
+.env
