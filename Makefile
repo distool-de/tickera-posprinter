@@ -7,19 +7,19 @@ MAIN_SCRIPT = main.py
 
 # Ziel für die virtuelle Umgebung
 venv:
-	python3 -m venv venv
+	python3 -m venv .venv
 
 # Ziel für die Installation der Abhängigkeiten
 install: venv
-	venv/bin/pip install -r $(REQUIREMENTS_FILE)
+	.venv/bin/pip install -r $(REQUIREMENTS_FILE)
 
 # Ziel für das Starten des Skripts
 run: venv install
-	venv/bin/python $(MAIN_SCRIPT)
+	.venv/bin/python $(MAIN_SCRIPT)
 
 # Ziel für das Entfernen der virtuellen Umgebung
 clean:
-	rm -rf venv
+	rm -rf .venv
 	rm -rf log/script.log
 
 # Standardziel, das alle Schritte nacheinander ausführt

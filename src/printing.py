@@ -1,4 +1,4 @@
-﻿import subprocess, sys, logging
+﻿import subprocess, sys, logging, win32print, win32api, time
 from src.logging_config import setup_logging
 
 logger = setup_logging(__name__,logging.DEBUG)
@@ -47,3 +47,19 @@ def pdf_printer(pdf_file, printer_name):
         logger.error(f"Failed to print {pdf_file} on {printer_name}: {e}")
     except Exception as e:
         logger.error(f"An error occurred: {e}")
+
+def print_pdf(file_path):
+    # Standarddrucker abrufen
+    printer_name = win32print.GetDefaultPrinter()
+    
+    # PDF-Datei mit dem Standarddrucker drucken
+    win32api.ShellExecute(
+        0,
+        "print",
+        file_path,
+        f'/d:"{printer_name}"',
+        ".",
+        0
+    )
+    time.sleep(60)
+    subprocess.call("TASKKILL /F /IM Acrobat.exe", shell=True)

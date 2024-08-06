@@ -35,6 +35,8 @@ def main():
                 if orders:
                     for order in orders:
                         order_id = order['id']
+                        if order_id in known_order_ids:
+                            break
                         tc_paid_date = None
                         for meta in order.get('meta_data', []):
                             if meta.get('key') == '_tc_paid_date':

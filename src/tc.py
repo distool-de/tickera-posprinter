@@ -1,5 +1,5 @@
-﻿import requests, tempfile, os, logging
-from src.printing import pdf_printer
+﻿import requests, tempfile, os, logging, time
+from src.printing import pdf_printer, print_pdf
 from src.logging_config import setup_logging
 
 logger = setup_logging(__name__,logging.DEBUG)
@@ -39,12 +39,10 @@ def print_ticket(session, url, ticket_id, order_key, hash, template_id, printer_
         with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as fp:
             fp.write(response.content)
             logger.info(f'Ticket {ticket_id} downloaded successfully to {fp.name}')
-            pdf_printer(fp.name, printer_name)
             fp.close()
+            print_pdf(fp.name)
+	        #pdf_printer(fp.name, printer_name)
+            time.sleep(2)
             os.unlink(fp.name)
     else:
         logger.error(f'Failed to download Ticket {ticket_id}')
-        print_ticket(session, url, ticket_id, order_key, hash, template_id, printer_name)
-        
-
-        
