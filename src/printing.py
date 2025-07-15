@@ -10,7 +10,6 @@ def get_default_printer():
             cmd = "wmic printer where default='TRUE' get name"
             logger.debug(f"Executing command to get default printer: {cmd}")
             result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-            logger.debug(f"Command output: {result.stdout}")
             output = result.stdout.strip().split('\n')
             printer_name = [line.strip() for line in output if line.strip() and line.strip().lower() != 'name']
             logger.info(f"Default printer found: {printer_name[0]}")
