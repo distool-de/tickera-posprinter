@@ -30,7 +30,6 @@ def get_new_orders(url, consumer_key, consumer_secret, after, order_state="compl
     )
 
     params = {"status": order_state, "after": after}
-    # params = {"status": order_state}
     if customer_id is not None:
         params["customer"] = customer_id
 

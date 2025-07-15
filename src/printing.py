@@ -10,12 +10,11 @@ def get_default_printer():
             cmd = "wmic printer where default='TRUE' get name"
             logger.debug(f"Executing command to get default printer: {cmd}")
             result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-            logger.debug(f"Command output: {result.stdout}")
             output = result.stdout.strip().split('\n')
             printer_name = [line.strip() for line in output if line.strip() and line.strip().lower() != 'name']
             logger.info(f"Default printer found: {printer_name[0]}")
             return printer_name[0]
-        
+
         elif sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
             logger.debug(f"get Linux default Printer")
             result = subprocess.run(['lpstat', '-d'], capture_output=True, text=True)
@@ -34,17 +33,34 @@ def get_default_printer():
         logger.error(f"Failed to get default printer: {e}")
         return None
 
-# https://github.com/postboxat18/Printer/blob/master/main.py
 def pdf_printer(pdf_file, printer_name):
-    logger.debug(f"Printing PDF: {pdf_file} on printer: {printer_name}")
+    system = sys.platform
+
+    if system == "win32":
+        gs_command = [
+            "gswin64c",
+            "-dBATCH",
+            "-dNOPAUSE",
+            "-dNOSAFER",
+            "-sDEVICE=mswinpr2",
+            f"-sOutputFile=%printer%{printer_name}",
+            pdf_file
+        ]
+    else:
+        gs_command = [
+            "gs",
+            "-dBATCH",
+            "-dNOPAUSE",
+            "-sDEVICE=cups",
+            f"-sOutputFile=%printer%{printer_name}",
+            pdf_file
+        ]
+
     try:
-            if sys.platform.startswith('win'):
-                subprocess.run(['print', '/D:', printer_name, pdf_file], check=True)
-                logger.info(f"Printed {pdf_file} on {printer_name} successfully.")
-            elif sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
-                subprocess.run(['lp', '-d', printer_name, pdf_file], check=True)
-                logger.info(f"Printed {pdf_file} on {printer_name} successfully.")
-            else:
-                logger.error("Unsupported operating system")
-    except Exception as e:
-        logger.error(f"An error occurred: {e}")
+        logger.info(f"Start Printing PDF: {pdf_file} on printer: {printer_name}")
+        subprocess.run(gs_command, check=True)
+        logger.info("Druckauftrag erfolgreich gesendet.")
+    except subprocess.CalledProcessError as e:
+        logger.error("Fehler beim Drucken der Datei:", e)
+    except FileNotFoundError:
+        logger.error("Ghostscript nicht gefunden. Stelle sicher, dass es installiert ist und im PATH liegt.")
