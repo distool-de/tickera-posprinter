@@ -34,17 +34,37 @@ def get_default_printer():
         logger.error(f"Failed to get default printer: {e}")
         return None
 
-# https://github.com/postboxat18/Printer/blob/master/main.py
 def pdf_printer(pdf_file, printer_name):
-    logger.debug(f"Printing PDF: {pdf_file} on printer: {printer_name}")
+    if not os.path.isfile(pdf_file):
+        logger.error(f"Datei nicht gefunden: {pdf_path}")
+        retrun
+        
+    system = platform.system
+
+    if system == "Windows":
+        gs_command = [
+            "gswin64c",
+            "-dBATCH"
+            "-dNOPAUSE",
+            "-dNOSAFER",
+            "-sDEVICE=mswinpr2"
+            f"-sOutputFile=%printer%{printer_name}",
+            pdf_file
+        ]
+    else # for Linux/MacOS
+        gs_command = [
+            "gs",
+            "-dBATCH",
+            "-dNOPAUSE",
+            "-sDEVICE=cups",
+            f"-sOutputFile=%printer%{printer_name}",
+            pdf_file
+        ]
+    
     try:
-            if sys.platform.startswith('win'):
-                subprocess.run(['print', '/D:', printer_name, pdf_file], check=True)
-                logger.info(f"Printed {pdf_file} on {printer_name} successfully.")
-            elif sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
-                subprocess.run(['lp', '-d', printer_name, pdf_file], check=True)
-                logger.info(f"Printed {pdf_file} on {printer_name} successfully.")
-            else:
-                logger.error("Unsupported operating system")
-    except Exception as e:
-        logger.error(f"An error occurred: {e}")
+        logger.info(f"Start Printing PDF: {pdf_file} on printer: {printer_name}")
+        subprocess.run(gs_command, check=True)
+    except subprocess.CalledProcessError as e:
+        logger.error("Fehler beim Drucken der Datei:", e)
+    except FileNotFoundError:
+        logger.error("Ghostscript nicht gefunden. Stelle sicher, dass es installiert ist und im PATH liegt.")
