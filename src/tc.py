@@ -40,7 +40,6 @@ def print_ticket(session, url, ticket_id, order_key, hash, template_id, printer_
             fp.write(response.content)
             logger.info(f'Ticket {ticket_id} downloaded successfully to {fp.name}')
             fp.close()
-            #print_pdf(fp.name)
             pdf_printer(fp.name, printer_name)
             time.sleep(2)
             os.unlink(fp.name)

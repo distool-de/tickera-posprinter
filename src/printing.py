@@ -39,19 +39,19 @@ def pdf_printer(pdf_file, printer_name):
         logger.error(f"Datei nicht gefunden: {pdf_path}")
         retrun
         
-    system = platform.system
+    system = sys.platform
 
-    if system == "Windows":
+    if system == "win32":
         gs_command = [
             "gswin64c",
-            "-dBATCH"
+            "-dBATCH",
             "-dNOPAUSE",
             "-dNOSAFER",
-            "-sDEVICE=mswinpr2"
+            "-sDEVICE=mswinpr2",
             f"-sOutputFile=%printer%{printer_name}",
             pdf_file
         ]
-    else # for Linux/MacOS
+    else:
         gs_command = [
             "gs",
             "-dBATCH",
