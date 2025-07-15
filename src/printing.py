@@ -14,7 +14,7 @@ def get_default_printer():
             printer_name = [line.strip() for line in output if line.strip() and line.strip().lower() != 'name']
             logger.info(f"Default printer found: {printer_name[0]}")
             return printer_name[0]
-        
+
         elif sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
             logger.debug(f"get Linux default Printer")
             result = subprocess.run(['lpstat', '-d'], capture_output=True, text=True)
@@ -34,10 +34,6 @@ def get_default_printer():
         return None
 
 def pdf_printer(pdf_file, printer_name):
-    if not os.path.isfile(pdf_file):
-        logger.error(f"Datei nicht gefunden: {pdf_path}")
-        retrun
-        
     system = sys.platform
 
     if system == "win32":
@@ -59,10 +55,11 @@ def pdf_printer(pdf_file, printer_name):
             f"-sOutputFile=%printer%{printer_name}",
             pdf_file
         ]
-    
+
     try:
         logger.info(f"Start Printing PDF: {pdf_file} on printer: {printer_name}")
         subprocess.run(gs_command, check=True)
+        logger.info("Druckauftrag erfolgreich gesendet.")
     except subprocess.CalledProcessError as e:
         logger.error("Fehler beim Drucken der Datei:", e)
     except FileNotFoundError:
