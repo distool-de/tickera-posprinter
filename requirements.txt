@@ -1,5 +1,5 @@
 python-dotenv==1.0.1
-requests==2.32.4
+requests==2.33.0
 urllib3==2.6.3
 WooCommerce==3.0.0
 dotenv==0.9.9
