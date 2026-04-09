@@ -26,15 +26,15 @@ def fetch_ticket_data(session, url, order_id, order_key):
     else:
         return {"status": str(response.status_code), "message": "Request failed."}
 
-def print_ticket(session, url, ticket_id, order_key, hash, template_id, printer_name):
+def print_ticket(url, ticket_id, order_key, nonce, template_id, printer_name):
     params = {
         "download_ticket": ticket_id,
         "order_key": order_key,
-        "nonce": hash,
+        "nonce": nonce,
         "template_id": template_id
     }
 
-    response = session.get(url, params=params)
+    response = requests.get(url, params=params, headers={"User-Agent": "Mozilla/5.0"})
     if response.status_code == 200:
         with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as fp:
             fp.write(response.content)
