@@ -4,6 +4,7 @@ from src.tc import fetch_ticket_data, print_ticket, create_session
 from src.printing import get_default_printer
 from dotenv import load_dotenv
 from src.logging_config import setup_logging
+from woocommerce import API
 import logging, concurrent.futures, os
 
 logger = setup_logging(__name__,logging.DEBUG)
@@ -24,14 +25,23 @@ def main():
     if not url or not consumer_key or not consumer_secret:
         logger.error("URL, Consumer Key oder Consumer Secret sind nicht gesetzt.")
         return
-    
+
+    wcapi = API(
+        url=url,
+        consumer_key=consumer_key,
+        consumer_secret=consumer_secret,
+        version="wc/v3",
+        wp_api=True,
+        order='asc',
+    )
+
     with concurrent.futures.ThreadPoolExecutor(max_workers=12) as executor:
         try:
             while True:  # Endlosschleife für kontinuierlichen Betrieb
                 if session is None:
                     session = create_session()
 
-                orders = get_new_orders(url, consumer_key, consumer_secret, time_threshold, order_state, customer_id, known_order_ids)
+                orders = get_new_orders(wcapi, time_threshold, order_state, customer_id, known_order_ids)
                 if orders:
                     for order in orders:
                         order_id = order['id']
