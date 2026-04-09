@@ -46,7 +46,7 @@ def main():
                         if order_tickets.get('status') != 200:
                             logger.error(f"Ticket-Daten für Bestellung {order_id} konnten nicht abgerufen werden: {order_tickets.get('message', 'Unbekannter Fehler')}")
                             continue
-                        future_to_tickets = {executor.submit(print_ticket, session, url, ticket['ticket_id'], ticket['tc_order_key'], ticket['hash'], ticket['ticket_template_POS'], printer): ticket for ticket in order_tickets['data']}
+                        future_to_tickets = {executor.submit(print_ticket, url, ticket['ticket_id'], ticket['tc_order_key'], ticket['hash'], ticket['ticket_template_POS'], printer): ticket for ticket in order_tickets['data']}
                         known_order_ids.add(order_id)
                 else:
                     logger.info("Keine neuen Bestellungen gefunden.")
