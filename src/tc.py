@@ -1,4 +1,4 @@
-﻿import requests, tempfile, os, logging, time
+﻿import requests, tempfile, os, logging, time, json
 from src.printing import pdf_printer
 from src.logging_config import setup_logging
 
@@ -18,11 +18,12 @@ def fetch_ticket_data(session, url, order_id, order_key):
     }
 
     response = session.get(url, params=params)
-
     if response.status_code == 200:
-        return response.json()
+        return json.loads(response.content.decode("utf-8-sig"))
     elif response.status_code == 401:
         return {"status": "401", "message": "Unauthorized access."}
+    elif response.status_code == 503:
+        return {"status": "503", "message": "Unauthorized access."}
     else:
         return {"status": str(response.status_code), "message": "Request failed."}
 
@@ -33,9 +34,9 @@ def print_ticket(url, ticket_id, order_key, nonce, template_id, printer_name):
         "nonce": nonce,
         "template_id": template_id
     }
-
+    
     response = requests.get(url, params=params, headers={"User-Agent": "Mozilla/5.0"})
-    if response.status_code == 200:
+    if response.status_code in (200, 503):
         with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as fp:
             fp.write(response.content)
             logger.info(f'Ticket {ticket_id} downloaded successfully to {fp.name}')

@@ -4,7 +4,7 @@ from src.tc import fetch_ticket_data, print_ticket, create_session
 from src.printing import get_default_printer
 from dotenv import load_dotenv
 from src.logging_config import setup_logging
-import logging, concurrent.futures, os
+import logging, concurrent.futures, os, time
 
 logger = setup_logging(__name__,logging.DEBUG)
 setup_logging("urllib3", logging.DEBUG)
@@ -30,19 +30,14 @@ def main():
             while True:  # Endlosschleife für kontinuierlichen Betrieb
                 if session is None:
                     session = create_session()
-
+                time.sleep(10)
                 orders = get_new_orders(url, consumer_key, consumer_secret, time_threshold, order_state, customer_id, known_order_ids)
                 if orders:
                     for order in orders:
                         order_id = order['id']
                         if order_id in known_order_ids:
                             continue
-                        tc_paid_date = None
-                        for meta in order.get('meta_data', []):
-                            if meta.get('key') == '_tc_paid_date':
-                                tc_paid_date = meta.get('value')
-                                break
-                        order_tickets = fetch_ticket_data(session, url, order_id, tc_paid_date)
+                        order_tickets = fetch_ticket_data(session, url, order_id, order['order_key'])
                         if order_tickets.get('status') != 200:
                             logger.error(f"Ticket-Daten für Bestellung {order_id} konnten nicht abgerufen werden: {order_tickets.get('message', 'Unbekannter Fehler')}")
                             continue

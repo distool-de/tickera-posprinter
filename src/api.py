@@ -1,4 +1,5 @@
 ﻿import logging
+import json
 from woocommerce import API
 from src.logging_config import setup_logging
 
@@ -39,7 +40,7 @@ def get_new_orders(url, consumer_key, consumer_secret, after, order_state="compl
     try:
         response = wcapi.get("orders", params=params)
         response.raise_for_status()  # Überprüfen, ob die Anfrage erfolgreich war
-        return response.json()
+        return json.loads(response.content.decode("utf-8-sig"))
     except Exception as e:
         logger.error(f"Fehler beim Abrufen der Bestellungen: {e}")
         return []
